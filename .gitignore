@@ -1,0 +1,17 @@
+# .NET
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+.vs/
+.vscode/
+
+# SQLite
+*.db
+*.db-shm
+*.db-wal
+
+# Node / React
+node_modules/
+dist/
+.env

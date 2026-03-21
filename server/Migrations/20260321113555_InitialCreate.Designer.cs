@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BankingSystem.Migrations
 {
     [DbContext(typeof(BankingDbContext))]
-    [Migration("20260321092902_InitialCreateClean")]
-    partial class InitialCreateClean
+    [Migration("20260321113555_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -38,7 +38,8 @@ namespace BankingSystem.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(10,2)");
 
-                    b.Property<DateTime>("BirthDate")
+                    b.Property<string>("BirthDate")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("FullNameEnglish")

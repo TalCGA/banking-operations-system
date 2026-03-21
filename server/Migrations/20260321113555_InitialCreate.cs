@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BankingSystem.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreateClean : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -19,7 +19,7 @@ namespace BankingSystem.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     FullNameHebrew = table.Column<string>(type: "TEXT", maxLength: 20, nullable: false),
                     FullNameEnglish = table.Column<string>(type: "TEXT", maxLength: 15, nullable: false),
-                    BirthDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    BirthDate = table.Column<string>(type: "TEXT", nullable: false),
                     PersonalId = table.Column<string>(type: "TEXT", maxLength: 9, nullable: false),
                     Amount = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
                     AccountNumber = table.Column<string>(type: "TEXT", maxLength: 10, nullable: false),

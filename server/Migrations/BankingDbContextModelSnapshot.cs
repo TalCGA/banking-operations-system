@@ -35,7 +35,8 @@ namespace BankingSystem.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(10,2)");
 
-                    b.Property<DateTime>("BirthDate")
+                    b.Property<string>("BirthDate")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("FullNameEnglish")

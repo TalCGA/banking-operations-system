@@ -1,6 +1,7 @@
 using BankingSystem.Data;
 using BankingSystem.Models;
 using BankingSystem.Providers;
+using Microsoft.EntityFrameworkCore;
 
 namespace BankingSystem.Services;
 
@@ -21,15 +22,15 @@ public class BankingService
 
         var transaction = new Transaction
         {
-            FullNameHebrew   = request.FullNameHebrew,
-            FullNameEnglish  = request.FullNameEnglish,
-            BirthDate        = request.BirthDate,
-            PersonalId       = request.PersonalId,
-            Amount           = request.Amount,
-            AccountNumber    = request.AccountNumber,
-            ActionType       = request.ActionType,
-            TransactionDate  = DateTime.UtcNow,
-            Status           = TransactionStatus.Cancelled // default; overwritten below
+            FullNameHebrew  = request.FullNameHebrew,
+            FullNameEnglish = request.FullNameEnglish,
+            BirthDate       = request.BirthDate,
+            PersonalId      = request.PersonalId,
+            Amount          = request.Amount,
+            AccountNumber   = request.AccountNumber,
+            ActionType      = request.ActionType,
+            TransactionDate = DateTime.UtcNow,
+            Status          = TransactionStatus.Cancelled
         };
 
         BankResponse response = await _bankProvider.ExecuteTransactionAsync(token, transaction);
@@ -46,7 +47,8 @@ public class BankingService
 
     public async Task<List<Transaction>> GetAllTransactionsAsync()
     {
-        return await System.Threading.Tasks.Task.FromResult(
-            _dbContext.Transactions.OrderByDescending(t => t.TransactionDate).ToList());
+        return await _dbContext.Transactions
+            .OrderByDescending(t => t.TransactionDate)
+            .ToListAsync();
     }
 }

@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using BankingSystem.Configuration;
 using BankingSystem.Data;
 using BankingSystem.Filters;
 using BankingSystem.Providers;
@@ -38,6 +39,15 @@ builder.Services.AddSwaggerGen(c =>
     c.SchemaFilter<TransactionSchemaFilter>();
 
     c.UseInlineDefinitionsForEnums();
+});
+
+builder.Services.AddOptions<OpenBankingOptions>()
+    .BindConfiguration(OpenBankingOptions.SectionName)
+    .ValidateDataAnnotations();
+
+builder.Services.AddHttpClient("OpenBanking", client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(5);
 });
 
 builder.Services.AddScoped<IBankProvider, MockBankProvider>();

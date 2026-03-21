@@ -20,6 +20,13 @@ public class BankingService
     {
         string token = await _bankProvider.GetTokenAsync(request.PersonalId, request.AccountNumber);
 
+        BankResponse response = await _bankProvider.ExecuteTransactionAsync(token, new Transaction
+        {
+            AccountNumber = request.AccountNumber,
+            ActionType    = request.ActionType,
+            Amount        = request.Amount,
+        });
+
         var transaction = new Transaction
         {
             FullNameHebrew  = request.FullNameHebrew,
@@ -30,14 +37,9 @@ public class BankingService
             AccountNumber   = request.AccountNumber,
             ActionType      = request.ActionType,
             TransactionDate = DateTime.UtcNow,
-            Status          = TransactionStatus.Cancelled
+            Status          = response.IsSuccess ? TransactionStatus.Success : TransactionStatus.Failed,
+            FailureReason   = response.IsSuccess ? null : response.FailureReason,
         };
-
-        BankResponse response = await _bankProvider.ExecuteTransactionAsync(token, transaction);
-
-        transaction.Status = response.IsSuccess
-            ? TransactionStatus.Success
-            : TransactionStatus.Failed;
 
         _dbContext.Transactions.Add(transaction);
         await _dbContext.SaveChangesAsync();

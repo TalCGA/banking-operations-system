@@ -58,5 +58,7 @@ public class Transaction
     [Required]
     public TransactionStatus Status { get; set; }
 
+    public string? FailureReason { get; set; }
+
     public DateTime TransactionDate { get; set; } = DateTime.UtcNow;
 }

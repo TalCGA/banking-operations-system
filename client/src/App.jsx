@@ -3,12 +3,13 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Box, AppBar, Toolbar, Typography, Snackbar, Alert } from '@mui/material';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import TransactionForm from './components/TransactionForm';
+import EditTransactionForm from './components/EditTransactionForm';
 import TransactionList from './components/TransactionList';
-import { clearError, clearLatest } from './store/transactionSlice';
+import { clearError, clearLatest, clearOperationFeedback } from './store/transactionSlice';
 
 function App() {
   const dispatch = useDispatch();
-  const { error, latest } = useSelector((state) => state.transactions);
+  const { error, latest, editingTransaction, operationFeedback } = useSelector((state) => state.transactions);
 
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
@@ -17,23 +18,28 @@ function App() {
     const isSuccess = latest.status === 'Success';
     setSnackbar({
       open:     true,
-      severity: isSuccess ? 'success' : 'error',
+      severity: isSuccess ? 'success' : 'warning',
       message:  isSuccess
-        ? `✓ ${latest.actionType} of $${Number(latest.amount).toLocaleString()} processed successfully`
-        : `✗ Transaction failed${latest.failureReason ? `: ${latest.failureReason}` : ''}`,
+        ? `${latest.actionType} of ₪${Number(latest.amount).toLocaleString()} processed successfully`
+        : 'Simulated Provider Rejection: The bank declined this operation.',
     });
   }, [latest]);
 
   useEffect(() => {
     if (!error) return;
-    const message = typeof error === 'string' ? error : error?.title ?? 'An unexpected error occurred';
-    setSnackbar({ open: true, severity: 'error', message });
+    setSnackbar({ open: true, severity: 'error', message: 'System Error: A technical issue occurred. Please check the logs.' });
   }, [error]);
+
+  useEffect(() => {
+    if (!operationFeedback) return;
+    setSnackbar({ open: true, severity: operationFeedback.severity, message: operationFeedback.message });
+  }, [operationFeedback]);
 
   const handleSnackbarClose = () => {
     setSnackbar((prev) => ({ ...prev, open: false }));
     dispatch(clearError());
     dispatch(clearLatest());
+    dispatch(clearOperationFeedback());
   };
 
   return (
@@ -58,7 +64,7 @@ function App() {
           }}
         >
           <Box sx={{ width: { xs: '100%', md: '25%' }, flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
-            <TransactionForm />
+            {editingTransaction ? <EditTransactionForm /> : <TransactionForm />}
           </Box>
 
           <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>

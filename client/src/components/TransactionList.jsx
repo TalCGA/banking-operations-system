@@ -4,23 +4,25 @@ import {
   Paper, Typography, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Chip, Box, Alert, Skeleton,
   TablePagination, IconButton, Tooltip, TextField, InputAdornment,
+  Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button,
 } from '@mui/material';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import SearchIcon from '@mui/icons-material/Search';
-import { fetchTransactions } from '../store/transactionSlice';
+import InfoOutlinedIcon    from '@mui/icons-material/InfoOutlined';
+import SearchIcon          from '@mui/icons-material/Search';
+import EditOutlinedIcon    from '@mui/icons-material/EditOutlined';
+import DeleteOutlineIcon   from '@mui/icons-material/DeleteOutline';
+import {
+  fetchTransactions,
+  deleteTransaction,
+  setEditingTransaction,
+} from '../store/transactionSlice';
 
 const ROWS_PER_PAGE = 8;
 
-const COLUMNS = ['Date', 'Name (HE)', 'Name (EN)', 'Personal ID', 'Amount', 'Account', 'Type', 'Status'];
+const COLUMNS = ['Date', 'Name (HE)', 'Name (EN)', 'Personal ID', 'Amount', 'Account', 'Type', 'Status', 'Actions'];
 
 const STATUS_CONFIG = {
   Success: { color: 'success', label: 'Success' },
   Failed:  { color: 'error',   label: 'Failed'  },
-};
-
-const ACTION_CONFIG = {
-  Deposit:    { color: 'default' },
-  Withdrawal: { color: 'default' },
 };
 
 const NAVY_TOOLTIP_PROPS = {
@@ -42,10 +44,10 @@ function formatDate(dateString) {
 }
 
 function formatAmount(amount) {
-  return Number(amount).toLocaleString('en-US', {
+  return `₪${Number(amount).toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  });
+  })}`;
 }
 
 function SkeletonRows() {
@@ -64,8 +66,9 @@ function TransactionList() {
   const dispatch = useDispatch();
   const { list, loading, error } = useSelector((state) => state.transactions);
 
-  const [page,   setPage]   = useState(0);
-  const [search, setSearch] = useState('');
+  const [page,         setPage]         = useState(0);
+  const [search,       setSearch]       = useState('');
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   useEffect(() => { dispatch(fetchTransactions()); }, [dispatch]);
 
@@ -83,6 +86,16 @@ function TransactionList() {
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
     setPage(0);
+  };
+
+  const handleDeleteConfirm = async () => {
+    const id = deleteTarget.id;
+    setDeleteTarget(null);
+    try {
+      await dispatch(deleteTransaction(id)).unwrap();
+      setPage(0);
+    } catch {
+    }
   };
 
   return (
@@ -154,7 +167,6 @@ function TransactionList() {
             ) : (
               visibleRows.map((tx) => {
                 const statusCfg = STATUS_CONFIG[tx.status] ?? { color: 'default', label: tx.status };
-                const actionCfg = ACTION_CONFIG[tx.actionType] ?? { color: 'default' };
 
                 return (
                   <TableRow key={tx.id} hover>
@@ -165,7 +177,7 @@ function TransactionList() {
                     <TableCell sx={{ whiteSpace: 'nowrap' }}>{formatAmount(tx.amount)}</TableCell>
                     <TableCell>{tx.accountNumber}</TableCell>
                     <TableCell>
-                      <Chip label={tx.actionType} size="small" color={actionCfg.color} variant="outlined" />
+                      <Chip label={tx.actionType} size="small" color="default" variant="outlined" />
                     </TableCell>
                     <TableCell sx={{ whiteSpace: 'nowrap' }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -182,6 +194,34 @@ function TransactionList() {
                             </IconButton>
                           </Tooltip>
                         )}
+                      </Box>
+                    </TableCell>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', gap: 0.5 }}>
+                        <Tooltip title="Edit amount" placement="top">
+                          <IconButton
+                            size="small"
+                            onClick={() => dispatch(setEditingTransaction(tx))}
+                            sx={{
+                              color: 'text.disabled',
+                              '&:hover': { color: 'primary.main' },
+                            }}
+                          >
+                            <EditOutlinedIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Delete" placement="top">
+                          <IconButton
+                            size="small"
+                            onClick={() => setDeleteTarget(tx)}
+                            sx={{
+                              color: 'text.disabled',
+                              '&:hover': { color: 'error.main' },
+                            }}
+                          >
+                            <DeleteOutlineIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
                       </Box>
                     </TableCell>
                   </TableRow>
@@ -201,6 +241,25 @@ function TransactionList() {
         onPageChange={(_, newPage) => setPage(newPage)}
         sx={{ borderTop: '1px solid', borderColor: 'divider', flexShrink: 0 }}
       />
+
+      <Dialog open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
+        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Permanently delete the{' '}
+            <strong>{deleteTarget?.actionType}</strong> transaction for{' '}
+            <strong>{deleteTarget?.fullNameEnglish}</strong>? This cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="outlined" color="inherit" onClick={() => setDeleteTarget(null)}>
+            Cancel
+          </Button>
+          <Button color="error" onClick={handleDeleteConfirm} autoFocus>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Paper>
   );
 }

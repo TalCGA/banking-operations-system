@@ -49,7 +49,7 @@ public class TransactionsController : ControllerBase
         if (!ModelState.IsValid)
         {
             _logger.LogWarning(
-                "Validation failed for Process request — account {AccountNumber}, errors: {Errors}",
+                "[VALIDATION] Process request failed — account {AccountNumber}, errors: {Errors}",
                 request.AccountNumber,
                 string.Join("; ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
             return BadRequest(ModelState);
@@ -82,7 +82,7 @@ public class TransactionsController : ControllerBase
         if (!ModelState.IsValid)
         {
             _logger.LogWarning(
-                "Validation failed for Update request on Transaction {Id} — amount {Amount}",
+                "[VALIDATION] Update request failed for Transaction {Id} — amount {Amount}",
                 id, request.Amount);
             return BadRequest(ModelState);
         }

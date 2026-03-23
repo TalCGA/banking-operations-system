@@ -18,6 +18,7 @@ public class TransactionRequest
     public string FullNameEnglish { get; set; } = string.Empty;
 
     [Required]
+    [MustBeInPast]
     public DateOnly BirthDate { get; set; }
 
     [Required]

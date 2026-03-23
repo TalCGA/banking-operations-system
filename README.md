@@ -1,6 +1,7 @@
 # Banking Operations System
 
 A full-stack banking dashboard for processing, editing, and cancelling transactions — built with .NET 8, React, and SQLite.
+The project implements full CRUD functionality, search bar and advanced logging as part of the extended system requirements.
 
 ---
 

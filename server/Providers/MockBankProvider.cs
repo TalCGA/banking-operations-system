@@ -8,6 +8,7 @@ namespace BankingSystem.Providers;
 
 public class MockBankProvider : IBankProvider
 {
+    private const  string   SecretId        = "Je45GDf34";
     private static readonly Random   _random         = new();
     private static readonly string[] _failureReasons = ["Timeout", "Insufficient Funds", "System Error"];
 
@@ -20,9 +21,9 @@ public class MockBankProvider : IBankProvider
         _openBankingOptions = openBankingOptions.Value;
     }
 
-    public async Task<string> GetTokenAsync(string userId, string secretId)
+    public async Task<string> GetTokenAsync(string personalId)
     {
-        var requestPayload = JsonSerializer.Serialize(new { userId, secretId });
+        var requestPayload = JsonSerializer.Serialize(new { personalId, secretId = SecretId });
         await SendPostRequestAsync(_openBankingOptions.CreateTokenUrl, requestPayload);
 
         await Task.Delay(500);

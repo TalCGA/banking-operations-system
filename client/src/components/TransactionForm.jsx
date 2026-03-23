@@ -39,7 +39,11 @@ function validate(form) {
     errors.fullNameEnglish = 'English letters, spaces, hyphens and apostrophes only';
   }
 
-  if (!form.birthDate) errors.birthDate = 'Required';
+  if (!form.birthDate) {
+    errors.birthDate = 'Required';
+  } else if (new Date(form.birthDate) >= new Date(new Date().toDateString())) {
+    errors.birthDate = 'Must be a past date.';
+  }
 
   if (!form.personalId) {
     errors.personalId = 'Required';
@@ -119,7 +123,7 @@ function TransactionForm() {
         component="form"
         onSubmit={handleSubmit}
         noValidate
-        spacing={2}
+        spacing={1.5}
         sx={{ mt: 1 }}
       >
         <TextField
@@ -155,11 +159,14 @@ function TransactionForm() {
           value={form.birthDate}
           onChange={handleChange}
           error={!!errors.birthDate}
-          helperText={errors.birthDate}
+          helperText={errors.birthDate || ' '}
           size="small"
           required
           fullWidth
-          slotProps={{ inputLabel: { shrink: true } }}
+          slotProps={{
+            inputLabel: { shrink: true },
+            htmlInput: { max: new Date(Date.now() - 86400000).toISOString().split('T')[0] },
+          }}
         />
 
         <TextField

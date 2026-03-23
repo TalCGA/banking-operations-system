@@ -64,7 +64,7 @@ function App() {
           }}
         >
           <Box sx={{ width: { xs: '100%', md: '25%' }, flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
-            {editingTransaction ? <EditTransactionForm /> : <TransactionForm />}
+            {editingTransaction ? <EditTransactionForm key={editingTransaction.id} /> : <TransactionForm />}
           </Box>
 
           <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
